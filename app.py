@@ -59,7 +59,7 @@ h1,h2,h3 {color:#50387e!important}
 [class*="st-key-question-card-"] .q {font-size:1.15rem;line-height:1.5;color:#33254b;font-weight:700;margin-top:.35rem}
 .result-card {background:#fff;color:#302445;border:1px solid #e4d4f5;border-radius:22px;padding:25px;margin:16px 0;box-shadow:0 5px 20px #6c4a9a12}
 .quote {background:#f5edff;border-radius:12px;padding:15px;color:#60458b;font-style:italic}
-[class*="st-key-question-card-"] [data-testid="stRadio"] {width:100% !important}
+[class*="st-key-question-card-"] [data-testid="stRadio"] {width:100% !important;margin-top:1rem}
 [class*="st-key-question-card-"] [role="radiogroup"] {
   display:grid;grid-template-columns:minmax(0,1fr);gap:.6rem;width:100%;
 }
@@ -98,14 +98,17 @@ div[data-testid="stButton"] button:hover {background:#62449c;color:white}
 
 st.markdown('<div class="hero"><h1>결정에도 성격이 있다</h1><p>12가지 질문으로 알아보는 나의 의사결정 유형</p></div>', unsafe_allow_html=True)
 
-if "show_result" not in st.session_state:
-    st.session_state.show_result = False
+def reset_quiz():
+    st.session_state.pop("submitted_answers", None)
+    for idx in range(len(QUESTIONS)):
+        st.session_state.pop(f"answer_{idx}", None)
 
-# 다시 검사하기: 라디오 응답을 완전히 초기화
-if st.session_state.show_result:
+
+# 결과 화면에서는 렌더링되지 않는 라디오 위젯의 상태에 의존하지 않는다.
+submitted_answers = st.session_state.get("submitted_answers")
+if submitted_answers is not None:
     scores = [0, 0, 0, 0]
-    for idx, (_, axis, positive) in enumerate(QUESTIONS):
-        selected = st.session_state[f"answer_{idx}"]
+    for selected, (_, axis, positive) in zip(submitted_answers, QUESTIONS):
         value = OPTIONS.index(selected) + 1
         scores[axis] += value if positive == AXES[axis][1] else 5 - value  # 4점 척도 역채점
 
@@ -123,11 +126,7 @@ if st.session_state.show_result:
         st.progress(percentage, text=f"{left_label}  ←  {percentage}%  →  {right_label}")
     st.caption("이 테스트는 자기이해를 위한 간단한 유형 분류이며, 표준화된 심리검사는 아닙니다.")
 
-    if st.button("🔄 다시 검사하기", use_container_width=True):
-        for idx in range(len(QUESTIONS)):
-            st.session_state.pop(f"answer_{idx}", None)
-        st.session_state.show_result = False
-        st.rerun()
+    st.button("🔄 다시 검사하기", on_click=reset_quiz, use_container_width=True)
 else:
     st.write("평소 자신의 모습과 가장 가까운 답을 하나씩 골라주세요. 정답은 없어요!")
     answered = sum(st.session_state.get(f"answer_{idx}") is not None for idx in range(len(QUESTIONS)))
@@ -152,7 +151,9 @@ else:
     answered = sum(st.session_state.get(f"answer_{idx}") is not None for idx in range(len(QUESTIONS)))
     st.progress(answered / len(QUESTIONS), text=f"현재 완료: {answered} / {len(QUESTIONS)}문항")
     if st.button("✨ 내 의사결정 유형 확인하기", disabled=answered != len(QUESTIONS), use_container_width=True):
-        st.session_state.show_result = True
+        st.session_state.submitted_answers = tuple(
+            st.session_state[f"answer_{idx}"] for idx in range(len(QUESTIONS))
+        )
         st.rerun()
     if answered < len(QUESTIONS):
         st.caption(f"결과를 보려면 남은 {len(QUESTIONS)-answered}문항에 답해주세요.")

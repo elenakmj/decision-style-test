@@ -61,7 +61,7 @@ h1,h2,h3 {color:#50387e!important}
 .quote {background:#f5edff;border-radius:12px;padding:15px;color:#60458b;font-style:italic}
 [class*="st-key-question-card-"] [data-testid="stRadio"] {width:100% !important}
 [class*="st-key-question-card-"] [role="radiogroup"] {
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;width:100%;
+  display:grid;grid-template-columns:minmax(0,1fr);gap:.6rem;width:100%;
 }
 [class*="st-key-question-card-"] [role="radiogroup"] > label {
   min-width:0;min-height:3.25rem;margin:0;padding:.55rem .65rem;
@@ -80,9 +80,6 @@ h1,h2,h3 {color:#50387e!important}
   color:#2c2040 !important;font-size:1.08rem !important;font-weight:650;
   line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;
 }
-@media (max-width:760px) {
-  [class*="st-key-question-card-"] [role="radiogroup"] {grid-template-columns:repeat(2,minmax(0,1fr))}
-}
 @media (max-width:480px) {
   .block-container {padding-left:1rem;padding-right:1rem}
   .hero {padding:24px 8px}
@@ -94,6 +91,7 @@ h1,h2,h3 {color:#50387e!important}
   [class*="st-key-question-card-"] [role="radiogroup"] > label,
   [class*="st-key-question-card-"] [role="radiogroup"] > label p {font-size:1rem !important}
 }
+[data-testid="stRadio"] label, [data-testid="stRadio"] label * {color:#21162f !important;-webkit-text-fill-color:#21162f !important;opacity:1 !important}
 div[data-testid="stButton"] button {background:#7956b4;color:white;border-radius:12px;border:0;font-weight:700;padding:11px 24px}
 div[data-testid="stButton"] button:hover {background:#62449c;color:white}
 </style>""", unsafe_allow_html=True)
@@ -148,7 +146,7 @@ else:
                 index=None,
                 key=f"answer_{idx}",
                 label_visibility="collapsed",
-                horizontal=True,
+                horizontal=False,
             )
 
     answered = sum(st.session_state.get(f"answer_{idx}") is not None for idx in range(len(QUESTIONS)))

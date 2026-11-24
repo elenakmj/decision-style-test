@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="결정에도 성격이 있다", page_icon="💜", layout="centered")
+st.set_page_config(page_title="결정에도 성격이 있다", layout="centered")
 
 # 문항별 (질문, 해당 성향 축, 높은 응답이 가리키는 방향)
 QUESTIONS = [
@@ -46,22 +46,59 @@ OPTIONS = ["전혀 그렇지 않다", "그렇지 않은 편이다", "그런 편�
 
 st.markdown("""<style>
 .stApp {background:linear-gradient(160deg,#f7f1ff 0%,#fdfaff 55%,#f2edff 100%);color:#302445}
-.block-container {max-width:790px;padding-top:2rem;padding-bottom:3rem}
+.block-container {max-width:1050px;padding-top:2rem;padding-bottom:3rem}
 h1,h2,h3 {color:#50387e!important}
 .hero {background:linear-gradient(120deg,#e4d4ff,#f4e9ff);padding:30px 26px;border-radius:24px;text-align:center;margin-bottom:22px;border:1px solid #dac7f7}
-.hero h1 {font-size:2.2rem;margin:0 0 10px}
-.hero p {margin:0;color:#665580;font-size:1.08rem}
-.question-card {background:#fff;border:1px solid #e9ddf6;border-radius:18px;padding:16px 20px 8px;margin:15px 0 4px;box-shadow:0 3px 12px #6c4a9a0d}
-.question-card .num {font-size:.82rem;color:#8d6bb2;font-weight:700}
-.question-card .q {font-size:1.03rem;color:#33254b;font-weight:600;margin-top:5px}
-.result-card {background:#fff;border:1px solid #e4d4f5;border-radius:22px;padding:25px;margin:16px 0;box-shadow:0 5px 20px #6c4a9a12}
+.hero h1 {font-size:2.2rem;line-height:1.2;margin:0 0 .55rem;padding:0;word-break:keep-all}
+.hero p {margin:0;color:#54436c;font-size:1.08rem;line-height:1.45;white-space:nowrap}
+[class*="st-key-question-card-"] {
+  background:#fff;border:1px solid #e2d5f1;border-radius:18px;padding:1.2rem 1.3rem;
+  box-shadow:0 3px 12px #6c4a9a0d;
+}
+[class*="st-key-question-card-"] .num {font-size:.82rem;color:#6b4c8d;font-weight:700}
+[class*="st-key-question-card-"] .q {font-size:1.15rem;line-height:1.5;color:#33254b;font-weight:700;margin-top:.35rem}
+.result-card {background:#fff;color:#302445;border:1px solid #e4d4f5;border-radius:22px;padding:25px;margin:16px 0;box-shadow:0 5px 20px #6c4a9a12}
 .quote {background:#f5edff;border-radius:12px;padding:15px;color:#60458b;font-style:italic}
-div[data-testid="stRadio"] {background:white;border:1px solid #e9ddf6;border-radius:0 0 16px 16px;padding:10px 16px 14px;margin-top:-8px;margin-bottom:15px}
+[class*="st-key-question-card-"] [data-testid="stRadio"] {width:100% !important}
+[class*="st-key-question-card-"] [role="radiogroup"] {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;width:100%;
+}
+[class*="st-key-question-card-"] [role="radiogroup"] > label {
+  min-width:0;min-height:3.25rem;margin:0;padding:.55rem .65rem;
+  border:1px solid #e4d7f3;border-radius:10px;background:#faf6ff;
+  box-sizing:border-box;cursor:pointer;
+}
+[class*="st-key-question-card-"] [role="radiogroup"] > label:hover {background:#f1e8fc}
+[class*="st-key-question-card-"] [role="radiogroup"] > label:has(input:checked) {
+  background:#ede1ff;border-color:#7956b4;
+}
+[class*="st-key-question-card-"] [role="radiogroup"] > label:has(input:focus-visible) {
+  outline:2px solid #7956b4;outline-offset:2px;
+}
+[class*="st-key-question-card-"] [role="radiogroup"] > label,
+[class*="st-key-question-card-"] [role="radiogroup"] > label p {
+  color:#2c2040 !important;font-size:1.08rem !important;font-weight:650;
+  line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;
+}
+@media (max-width:760px) {
+  [class*="st-key-question-card-"] [role="radiogroup"] {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:480px) {
+  .block-container {padding-left:1rem;padding-right:1rem}
+  .hero {padding:24px 8px}
+  .hero h1 {font-size:1.65rem}
+  .hero p {font-size:clamp(.65rem,3.3vw,.98rem)}
+  [class*="st-key-question-card-"] {padding:.85rem}
+  [class*="st-key-question-card-"] .q {font-size:1.05rem}
+  [class*="st-key-question-card-"] [role="radiogroup"] > label {padding:.45rem}
+  [class*="st-key-question-card-"] [role="radiogroup"] > label,
+  [class*="st-key-question-card-"] [role="radiogroup"] > label p {font-size:1rem !important}
+}
 div[data-testid="stButton"] button {background:#7956b4;color:white;border-radius:12px;border:0;font-weight:700;padding:11px 24px}
 div[data-testid="stButton"] button:hover {background:#62449c;color:white}
 </style>""", unsafe_allow_html=True)
 
-st.markdown('<div class="hero"><h1>💜 결정에도 성격이 있다</h1><p>나의 의사결정 유형 테스트</p><p style="font-size:.86rem;margin-top:9px">12가지 질문 · 4가지 성향 · 16가지 유형</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="hero"><h1>결정에도 성격이 있다</h1><p>12가지 질문으로 알아보는 나의 의사결정 유형</p></div>', unsafe_allow_html=True)
 
 if "show_result" not in st.session_state:
     st.session_state.show_result = False
@@ -99,9 +136,20 @@ else:
     st.progress(answered / len(QUESTIONS), text=f"응답 진행률: {answered} / {len(QUESTIONS)}문항 ({answered / len(QUESTIONS):.0%})")
 
     for idx, (question, _, _) in enumerate(QUESTIONS):
-        st.markdown(f'<div class="question-card"><div class="num">QUESTION {idx + 1:02d} / 12</div><div class="q">{question}</div></div>', unsafe_allow_html=True)
-        # index=None으로 시작해 실제 미응답과 선택 상태를 구분
-        st.radio(f"질문 {idx+1} 답변", OPTIONS, index=None, key=f"answer_{idx}", label_visibility="collapsed")
+        with st.container(key=f"question-card-{idx}"):
+            st.markdown(
+                f'<div class="num">QUESTION {idx + 1:02d} / 12</div><div class="q">{question}</div>',
+                unsafe_allow_html=True,
+            )
+            # index=None으로 시작해 실제 미응답과 선택 상태를 구분
+            st.radio(
+                question,
+                OPTIONS,
+                index=None,
+                key=f"answer_{idx}",
+                label_visibility="collapsed",
+                horizontal=True,
+            )
 
     answered = sum(st.session_state.get(f"answer_{idx}") is not None for idx in range(len(QUESTIONS)))
     st.progress(answered / len(QUESTIONS), text=f"현재 완료: {answered} / {len(QUESTIONS)}문항")

@@ -1,6 +1,42 @@
+from hmac import compare_digest
+
 import streamlit as st
 
 st.set_page_config(page_title="결정에도 성격이 있다", layout="centered")
+
+def require_login():
+    if st.session_state.get("authenticated", False):
+        return
+
+    try:
+        expected_password = st.secrets["APP_PASSWORD"]
+    except (KeyError, FileNotFoundError):
+        st.error("앱의 비밀번호 설정이 필요합니다.")
+        st.stop()
+
+    if not isinstance(expected_password, str) or not expected_password.strip():
+        st.error("앱의 비밀번호 설정이 필요합니다.")
+        st.stop()
+
+    def check_password():
+        entered_password = st.session_state.pop("login_password", "")
+        st.session_state.authenticated = compare_digest(
+            entered_password.encode("utf-8"), expected_password.encode("utf-8")
+        )
+
+    st.text_input(
+        "비밀번호를 입력하세요",
+        type="password",
+        key="login_password",
+        on_change=check_password,
+    )
+    if st.session_state.get("authenticated") is False:
+        st.error("비밀번호가 올바르지 않습니다.")
+    st.stop()
+
+
+require_login()
+
 
 # 문항별 (질문, 해당 성향 축, 높은 응답이 가리키는 방향)
 QUESTIONS = [
